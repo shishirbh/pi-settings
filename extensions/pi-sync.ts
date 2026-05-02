@@ -9,7 +9,7 @@ const CACHE_DIR = path.join(PI_HOME, ".pi", "sync-cache");
 const AGENT_DIR = path.join(PI_HOME, ".pi", "agent");
 
 const SYNC_DIRS = ["extensions", "skills"];
-const SYNC_FILES = ["settings.json"];
+const SYNC_FILES = ["settings.json", "LEARNINGS.md", "APPEND_SYSTEM.md"];
 
 function git(args: string[], cwd: string): string | null {
   try {
@@ -104,6 +104,14 @@ function repoToLocal() {
 }
 
 function pushToRemote(): string | null {
+  // Pull first to avoid non-fast-forward conflicts
+  const pull = git(["pull", "--rebase", "origin", "main"], CACHE_DIR);
+  if (pull === null) {
+    // Rebase may have conflicts — abort and tell user to resolve manually
+    git(["rebase", "--abort"], CACHE_DIR);
+    return "Conflict detected — run /sync-pull first, then /sync-push";
+  }
+
   git(["add", "-A"], CACHE_DIR);
 
   // Check if there's anything to commit
@@ -114,7 +122,7 @@ function pushToRemote(): string | null {
   if (commit === null && !status) return null; // no changes, ok
 
   const push = git(["push", "origin", "main"], CACHE_DIR);
-  if (push === null) return "Failed to push — check git credentials";
+  if (push === null) return "Failed to push — check network or git credentials";
 
   return null;
 }
