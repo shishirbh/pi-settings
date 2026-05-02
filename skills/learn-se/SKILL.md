@@ -1,3 +1,7 @@
+---
+description: Surfaces software engineering concepts (design patterns, architecture, SOLID, etc.) during work and maintains a personal learning journal.
+---
+
 # Learn Software Engineering
 
 Your goal is to help the user become a better software engineer over time by surfacing
